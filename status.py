@@ -28,16 +28,32 @@ def show_status():
 
 def move_cursor_up():
     global cursor_line
-    if cursor_line > 0:
-        cursor_line = cursor_line - 1
-    curses.setsyx(cursor_line, 0)
-    curses.doupdate()
+    global status
+    status_lines = status.split('\n')
+    potential_line = cursor_line
+    while potential_line > 0:
+        potential_line = potential_line - 1
+        if is_line_a_file(status_lines[potential_line]):
+            cursor_line = potential_line
+            curses.setsyx(cursor_line, 0)
+            curses.doupdate()
+            break
 
 def move_cursor_down():
     global cursor_line
-    cursor_line = cursor_line + 1
-    curses.setsyx(cursor_line, 0)
-    curses.doupdate()
+    global status
+    status_lines = status.split('\n')
+    potential_line = cursor_line
+    while potential_line < len(status_lines)-1:
+        potential_line = potential_line + 1
+        if is_line_a_file(status_lines[potential_line]):
+            cursor_line = potential_line
+            curses.setsyx(cursor_line, 0)
+            curses.doupdate()
+            break
+
+def is_line_a_file(line):
+    return line.startswith("	")
 
 def selected_line():
     return status.split('\n')[cursor_line]
@@ -72,6 +88,8 @@ stdscr.keypad(1) # have curses translate special keys
 signal.signal(signal.SIGINT, signal_handler)
 
 show_status()
+move_cursor_down()
+
 while 1:
     c = stdscr.getch()
     if c == ord('q'):
