@@ -56,6 +56,12 @@ def unstage():
     call(["git", "reset", "HEAD", line.strip()])
     show_status()
 
+def ignore():
+    line = selected_line()
+    with open(".gitignore", "a") as ignores:
+        ignores.write(line.strip())
+    show_status()
+
 show_status()
 while 1:
     c = stdscr.getch()
@@ -65,6 +71,8 @@ while 1:
         add()
     elif c == ord('c'):
         checkout()
+    elif c == ord('i'):
+        ignore()
     elif c == ord('u'):
         unstage()
     elif c == curses.KEY_UP:
