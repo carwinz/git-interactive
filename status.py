@@ -37,15 +37,27 @@ def move_cursor_down():
     curses.setsyx(cursor_line, 0)
     curses.doupdate()
 
+def add():
+    line = status.split('\n')[cursor_line]
+    line = line.replace('modified:', '')
+    call(["git", "add", line.strip()])
+    show_status()
+
+def checkout():
+    line = status.split('\n')[cursor_line]
+    line = line.replace('modified:', '')
+    call(["git", "checkout", line.strip()])
+    show_status()
+
 show_status()
 while 1:
     c = stdscr.getch()
     if c == ord('q'):
         break
     elif c == ord('a'):
-        line = status.split('\n')[cursor_line]
-        call(["git", "add", line.strip()])
-        show_status()
+        add()
+    elif c == ord('c'):
+        checkout()
     elif c == curses.KEY_UP:
         move_cursor_up()
     elif c == curses.KEY_DOWN:
