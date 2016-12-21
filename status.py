@@ -17,6 +17,14 @@ def exit():
     curses.nocbreak(); stdscr.keypad(0); curses.echo()
     curses.endwin()
 
+def move_cursor_to_closest_line():
+    line = current_line()
+    if line == None or not is_line_a_file(line):
+        move_cursor_up()
+        line = current_line()
+    if line == None or not is_line_a_file(line):
+        move_cursor_down()
+
 def show_status():
     global status
     status = check_output(["git", "status"])
@@ -25,12 +33,23 @@ def show_status():
     stdscr.refresh()
     curses.setsyx(cursor_line, 0)
     curses.doupdate()
+    move_cursor_to_closest_line()
+
+def current_line():
+    global cursor_line
+    global status
+    lines = status.split('\n')
+    if cursor_line + 1 > len(lines):
+        return None
+    return lines[cursor_line]
 
 def move_cursor_up():
     global cursor_line
     global status
     status_lines = status.split('\n')
     potential_line = cursor_line
+    if potential_line > len(status_lines):
+        potential_line = len(status_lines)-1
     while potential_line > 0:
         potential_line = potential_line - 1
         if is_line_a_file(status_lines[potential_line]):
@@ -44,6 +63,8 @@ def move_cursor_down():
     global status
     status_lines = status.split('\n')
     potential_line = cursor_line
+    if potential_line > len(status_lines):
+        potential_line = len(status_lines)-1
     while potential_line < len(status_lines)-1:
         potential_line = potential_line + 1
         if is_line_a_file(status_lines[potential_line]):
@@ -79,6 +100,11 @@ def ignore():
         ignores.write(line.strip())
     show_status()
 
+def delete():
+    line = selected_line()
+    call(["rm", line.strip()])
+    show_status()
+
 stdscr = curses.initscr()
 
 curses.noecho() # Don't echo keys to the screen
@@ -98,13 +124,15 @@ while 1:
         add()
     elif c == ord('c'):
         checkout()
+    elif c == ord('d'):
+        delete()
     elif c == ord('i'):
         ignore()
     elif c == ord('u'):
         unstage()
-    elif c == curses.KEY_UP:
+    elif c == curses.KEY_UP or c == ord('k'):
         move_cursor_up()
-    elif c == curses.KEY_DOWN:
+    elif c == curses.KEY_DOWN or c == ord('j'):
         move_cursor_down()
     else:
         show_status()
