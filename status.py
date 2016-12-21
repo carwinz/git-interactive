@@ -19,6 +19,7 @@ status = ''
 def show_status():
     global status
     status = check_output(["git", "status"])
+    stdscr.clear()
     stdscr.addstr(0, 0, status)
     stdscr.refresh()
     curses.setsyx(cursor_line, 0)
@@ -37,16 +38,22 @@ def move_cursor_down():
     curses.setsyx(cursor_line, 0)
     curses.doupdate()
 
+def selected_line():
+    return status.split('\n')[cursor_line]
+
 def add():
-    line = status.split('\n')[cursor_line]
-    line = line.replace('modified:', '')
+    line = selected_line().replace('modified:', '')
     call(["git", "add", line.strip()])
     show_status()
 
 def checkout():
-    line = status.split('\n')[cursor_line]
-    line = line.replace('modified:', '')
+    line = selected_line().replace('modified:', '')
     call(["git", "checkout", line.strip()])
+    show_status()
+
+def unstage():
+    line = selected_line().replace('modified:', '')
+    call(["git", "reset", "HEAD", line.strip()])
     show_status()
 
 show_status()
@@ -58,6 +65,8 @@ while 1:
         add()
     elif c == ord('c'):
         checkout()
+    elif c == ord('u'):
+        unstage()
     elif c == curses.KEY_UP:
         move_cursor_up()
     elif c == curses.KEY_DOWN:
