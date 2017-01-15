@@ -1,5 +1,4 @@
 #!/bin/bash
 
-cp status.py /usr/local/bin/git-interactive
+cp src/status.py /usr/local/bin/git-interactive
 chmod ugo+x /usr/local/bin/git-interactive
-

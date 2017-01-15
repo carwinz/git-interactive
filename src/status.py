@@ -100,6 +100,11 @@ def ignore():
         ignores.write(line.strip())
     show_status()
 
+def git_rm():
+    line = selected_line().replace('deleted:', '')
+    call(["git", "rm", line.strip()])
+    show_status()
+
 def delete():
     line = selected_line()
     call(["rm", line.strip()])
@@ -126,6 +131,8 @@ while 1:
         checkout()
     elif c == ord('d'):
         delete()
+    elif c == ord('r'):
+        git_rm()
     elif c == ord('i'):
         ignore()
     elif c == ord('u'):
