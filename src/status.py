@@ -103,11 +103,16 @@ def ignore():
 def git_rm():
     line = selected_line().replace('deleted:', '')
     call(["git", "rm", line.strip()])
+    call(["rm", line.strip()])
     show_status()
 
-def delete():
-    line = selected_line()
-    call(["rm", line.strip()])
+def diff():
+    line = selected_line().replace('modified:', '')
+    diff = check_output(["git", "diff", "--staged", line.strip()])
+    stdscr.clear()
+    stdscr.addstr(0, 0, diff)
+    stdscr.refresh()
+    stdscr.getch()
     show_status()
 
 stdscr = curses.initscr()
@@ -130,7 +135,7 @@ while 1:
     elif c == ord('c'):
         checkout()
     elif c == ord('d'):
-        delete()
+        diff()
     elif c == ord('r'):
         git_rm()
     elif c == ord('i'):
