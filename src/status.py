@@ -22,6 +22,15 @@ def show_status():
     stdscr.clear()
     stdscr.addstr(0, 0, status_wrapper.current_status())
     stdscr.refresh()
+    if status_wrapper.selected_file_section() == 'Staged':
+        stdscr.addstr(status_wrapper.line_count(), 0, 'd = view diff; u = unstage')
+        stdscr.refresh()
+    if status_wrapper.selected_file_section() == 'Not Staged':
+        stdscr.addstr(status_wrapper.line_count(), 0, 'a = add/stage; c = checkout; d = view diff; r = delete')
+        stdscr.refresh()
+    if status_wrapper.selected_file_section() == 'Untracked':
+        stdscr.addstr(status_wrapper.line_count(), 0, 'i = ignore; r = delete')
+        stdscr.refresh()
     update_cursor()
 
 def update_cursor():
@@ -93,10 +102,10 @@ while 1:
         unstage()
     elif c == curses.KEY_UP or c == ord('k'):
         status_wrapper.move_selection_up()
-        update_cursor()
+        show_status()
     elif c == curses.KEY_DOWN or c == ord('j'):
         status_wrapper.move_selection_down()
-        update_cursor()
+        show_status()
     else:
         show_status()
 

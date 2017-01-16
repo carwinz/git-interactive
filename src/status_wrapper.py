@@ -55,6 +55,9 @@ class StatusWrapper():
     def _selected_line(self):
         return self.status_lines[self.selected_line_index]
 
+    def line_count(self):
+        return len(self.status_lines)
+
     def selected_file(self):
         return self._selected_line().replace('new file:','').replace('modified:', '').replace('deleted:', '').strip()
 
@@ -65,7 +68,7 @@ class StatusWrapper():
             if 'Untracked files:' == self.status_lines[line]:
                 return 'Untracked'
             if 'Changes not staged for commit:' == self.status_lines[line]:
-                return 'Unstaged'
+                return 'Not Staged'
             if 'Changes to be committed:' == self.status_lines[line]:
                 return 'Staged'
         return None
