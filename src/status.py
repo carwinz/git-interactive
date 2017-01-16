@@ -64,9 +64,14 @@ def commit():
     curses.echo()
     curses.raw()
     stdscr.clear()
-    stdscr.addstr(0, 0, 'Commit: enter your message')
+    stdscr.addstr(0, 0, 'Commit message: ')
     stdscr.refresh()
-    stdsrc.getstr()
+    output = check_output(["git", "commit", "-m", stdscr.getstr()])
+    stdscr.clear()
+    stdscr.addstr(0, 0, outptu)
+    stdscr.refresh()
+    curses.noecho()
+    curses.cbreak()
 
 def diff():
     command = ["git", "diff"]
@@ -106,7 +111,7 @@ while 1:
         ignore()
     elif c == ord('u'):
         unstage()
-    elif c == ord('p'):
+    elif c == ord('f'):
         commit()
     elif c == curses.KEY_UP or c == ord('k'):
         status_wrapper.move_selection_up()
