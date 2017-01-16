@@ -47,12 +47,18 @@ def ignore():
 
 def git_rm():
     line = status_wrapper.selected_file()
-    call(["git", "rm", line.strip()])
-    call(["rm", line.strip()])
+    if status_wrapper.selected_file_section() == 'Untracked':
+        call(["rm", line.strip()])
+    else:
+        call(["git", "rm", line.strip()])
     show_status()
 
 def diff():
-    diff = check_output(["git", "diff", "--staged", status_wrapper.selected_file()])
+    command = ["git", "diff"]
+    if status_wrapper.selected_file_section() == 'Staged':
+        command.append('--staged')
+    command.append(status_wrapper.selected_file())
+    diff = check_output(command)
     stdscr.clear()
     stdscr.addstr(0, 0, diff)
     stdscr.refresh()

@@ -52,11 +52,23 @@ class StatusWrapper():
     def _is_line_a_file(self, line):
         return line.startswith("	")
 
-    def selected_file(self):
-        return self.selected_line().replace('new file:','').replace('modified:', '').replace('deleted:', '').strip()
-
-    def selected_line(self):
+    def _selected_line(self):
         return self.status_lines[self.selected_line_index]
+
+    def selected_file(self):
+        return self._selected_line().replace('new file:','').replace('modified:', '').replace('deleted:', '').strip()
+
+    def selected_file_section(self):
+        line = self.selected_line_index
+        while line > 0:
+            line = line - 1
+            if 'Untracked files:' == self.status_lines[line]:
+                return 'Untracked'
+            if 'Changes not staged for commit:' == self.status_lines[line]:
+                return 'Unstaged'
+            if 'Changes to be committed:' == self.status_lines[line]:
+                return 'Staged'
+        return None
 
     def current_status(self):
         return self.status
