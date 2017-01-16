@@ -68,7 +68,7 @@ def commit():
     stdscr.refresh()
     output = check_output(["git", "commit", "-m", stdscr.getstr()])
     stdscr.clear()
-    stdscr.addstr(0, 0, outptu)
+    stdscr.addstr(0, 0, output)
     stdscr.refresh()
     curses.noecho()
     curses.cbreak()
