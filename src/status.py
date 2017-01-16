@@ -23,13 +23,13 @@ def show_status():
     stdscr.addstr(0, 0, status_wrapper.current_status())
     stdscr.refresh()
     if status_wrapper.selected_file_section() == 'Staged':
-        stdscr.addstr(status_wrapper.line_count(), 0, 'd = view diff; u = unstage')
+        stdscr.addstr(status_wrapper.line_count(), 0, 'actions: d = view diff; u = unstage')
         stdscr.refresh()
     if status_wrapper.selected_file_section() == 'Not Staged':
-        stdscr.addstr(status_wrapper.line_count(), 0, 'a = add/stage; c = checkout; d = view diff; r = delete')
+        stdscr.addstr(status_wrapper.line_count(), 0, 'actions: a = add/stage; c = checkout; d = view diff; r = delete')
         stdscr.refresh()
     if status_wrapper.selected_file_section() == 'Untracked':
-        stdscr.addstr(status_wrapper.line_count(), 0, 'i = ignore; r = delete')
+        stdscr.addstr(status_wrapper.line_count(), 0, 'actions: i = ignore; r = delete')
         stdscr.refresh()
     update_cursor()
 
