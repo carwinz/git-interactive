@@ -21,7 +21,6 @@ def show_status():
     status_wrapper.update_status()
     stdscr.clear()
     stdscr.addstr(0, 0, status_wrapper.current_status())
-    stdscr.refresh()
     file_section = status_wrapper.selected_file_section()
     if file_section == 'Staged':
         stdscr.addstr(status_wrapper.line_count(), 0, 'actions: d = view diff; u = unstage')
@@ -61,6 +60,14 @@ def git_rm():
         call(["git", "rm", line.strip()])
     show_status()
 
+def commit():
+    curses.echo()
+    curses.raw()
+    stdscr.clear()
+    stdscr.addstr(0, 0, 'Commit: enter your message')
+    stdscr.refresh()
+    stdsrc.getstr()
+
 def diff():
     command = ["git", "diff"]
     if status_wrapper.selected_file_section() == 'Staged':
@@ -99,6 +106,8 @@ while 1:
         ignore()
     elif c == ord('u'):
         unstage()
+    elif c == ord('p'):
+        commit()
     elif c == curses.KEY_UP or c == ord('k'):
         status_wrapper.move_selection_up()
         show_status()
