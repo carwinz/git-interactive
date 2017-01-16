@@ -1,8 +1,8 @@
 #!/bin/bash
 
-mkdir dist
+mkdir -p dist
 cd src
-zip -r ../dist/git-interactive.zip *
+zip -qr ../dist/git-interactive.zip *
 cd ..
 echo '#!/usr/bin/env python' | cat - dist/git-interactive.zip > dist/git-interactive
 chmod +x dist/git-interactive
