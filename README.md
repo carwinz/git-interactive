@@ -1,7 +1,7 @@
 
 Make the __git status__ command interactive.
 
-Instead of running 'git status' and then running another command for each file (e.g. git add somedir/somefile), this removes the need for the second command. Instead you can hit a single key to stage, checkout, etc files.
+Instead of running 'git status' and then running another command for each file (e.g. git add somedir/somefile), this removes the need for typing follow-up commands. Instead you can hit a single key to stage a file, checkout a file, etc.
 
 Simply use the arrow keys to go the appropriate line and press one of the following:
 
@@ -13,9 +13,9 @@ Simply use the arrow keys to go the appropriate line and press one of the follow
 
 ## Installation
 
-  cp dist/git-interactive /usr/local/bin/
-  chmod +x /usr/local/bin/git-interactive
+    cp dist/git-interactive /usr/local/bin/
+    chmod +x /usr/local/bin/git-interactive
 
 Then run:
 
-  git interactive
+    git interactive
