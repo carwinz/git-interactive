@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mkdir dist
+cd src
+zip -r ../dist/git-interactive.zip *
+cd ..
+echo '#!/usr/bin/env python' | cat - dist/git-interactive.zip > dist/git-interactive
+chmod +x dist/git-interactive

@@ -10,3 +10,12 @@ Simply use the arrow keys to go the appropriate line and press one of the follow
 * d - to delete a file
 * i - to add to the ignore file
 * u - to unstage the file
+
+## Installation
+
+  cp dist/git-interactive /usr/local/bin/
+  chmod +x /usr/local/bin/git-interactive
+
+Then run:
+
+  git interactive
