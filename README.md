@@ -1,7 +1,9 @@
 
 Make the __git status__ command interactive.
 
-Use the arrow keys to go the appropriate line and press one of the following:
+Instead of running 'git status' and then running another command for each file (e.g. git add somedir/somefile), this removes the need for the second command. Instead you can hit a single key to stage, checkout, etc files.
+
+Simply use the arrow keys to go the appropriate line and press one of the following:
 
 * a - to add/stage
 * c - to checkout/revert a file
