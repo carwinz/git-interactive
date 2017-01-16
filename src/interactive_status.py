@@ -29,7 +29,7 @@ class InteractiveStatus():
         if file_section == 'Not Staged':
             self.stdscr.addstr(self.status_wrapper.line_count(), 0, 'actions: a = add/stage; c = checkout; d = view diff; r = delete; f = commit; q = quit')
         if file_section == 'Untracked':
-            self.stdscr.addstr(self.status_wrapper.line_count(), 0, 'actions: i = ignore; r = delete; f = commit; q = quit')
+            self.stdscr.addstr(self.status_wrapper.line_count(), 0, 'actions: a = add/stage; i = ignore; r = delete; f = commit; q = quit')
         self.stdscr.refresh()
         self.update_cursor()
 
