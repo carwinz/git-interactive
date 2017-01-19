@@ -12,7 +12,7 @@ class InteractiveStatus():
     status_wrapper = StatusWrapper()
 
     def signal_handler(self, signal, frame):
-        exit()
+        self.exit()
         sys.exit(0)
 
     def exit(self):
