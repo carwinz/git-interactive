@@ -89,41 +89,42 @@ class InteractiveStatus():
 
     def run(self):
 
-        self.stdscr = curses.initscr()
+        try:
+            self.stdscr = curses.initscr()
 
-        curses.noecho() # Don't echo keys to the screen
-        curses.cbreak() # react to keys without requiring the Enter key to be pressed
-        self.stdscr.keypad(1) # have curses translate special keys
+            curses.noecho() # Don't echo keys to the screen
+            curses.cbreak() # react to keys without requiring the Enter key to be pressed
+            self.stdscr.keypad(1) # have curses translate special keys
 
-        signal.signal(signal.SIGINT, self.signal_handler)
+            signal.signal(signal.SIGINT, self.signal_handler)
 
-        self.show_status()
+            self.show_status()
 
-        while 1:
-            c = self.stdscr.getch()
-            if c == ord('q'):
-                break
-            elif c == ord('a'):
-                self.add()
-            elif c == ord('c'):
-                self.checkout()
-            elif c == ord('d'):
-                self.diff()
-            elif c == ord('r'):
-                self.git_rm()
-            elif c == ord('i'):
-                self.ignore()
-            elif c == ord('u'):
-                self.unstage()
-            elif c == ord('f'):
-                self.commit()
-            elif c == curses.KEY_UP or c == ord('k'):
-                self.status_wrapper.move_selection_up()
-                self.show_status()
-            elif c == curses.KEY_DOWN or c == ord('j'):
-                self.status_wrapper.move_selection_down()
-                self.show_status()
-            else:
-                self.show_status()
-
-        self.exit()
+            while 1:
+                c = self.stdscr.getch()
+                if c == ord('q'):
+                    break
+                elif c == ord('a'):
+                    self.add()
+                elif c == ord('c'):
+                    self.checkout()
+                elif c == ord('d'):
+                    self.diff()
+                elif c == ord('r'):
+                    self.git_rm()
+                elif c == ord('i'):
+                    self.ignore()
+                elif c == ord('u'):
+                    self.unstage()
+                elif c == ord('f'):
+                    self.commit()
+                elif c == curses.KEY_UP or c == ord('k'):
+                    self.status_wrapper.move_selection_up()
+                    self.show_status()
+                elif c == curses.KEY_DOWN or c == ord('j'):
+                    self.status_wrapper.move_selection_down()
+                    self.show_status()
+                else:
+                    self.show_status()
+        finally:
+            self.exit()
