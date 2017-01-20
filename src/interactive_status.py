@@ -51,7 +51,7 @@ class InteractiveStatus():
 
     def ignore(self):
         with open(".gitignore", "a") as ignores:
-            ignores.write(self.status_wrapper.selected_file())
+            ignores.write(self.status_wrapper.selected_file() + '\n')
         self.show_status()
 
     def git_rm(self):
