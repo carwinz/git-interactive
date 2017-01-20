@@ -106,6 +106,16 @@ class InteractiveStatus():
             elif c == curses.KEY_DOWN or c == ord('j'):
                 if current_line < line_count - max_rows:
                     current_line = current_line + 1
+            elif c == curses.KEY_NPAGE:
+                potential_line = current_line + max_rows
+                if potential_line > line_count - max_rows:
+                    potential_line = line_count - max_rows
+                current_line = potential_line
+            elif c == curses.KEY_PPAGE:
+                potential_line = current_line - max_rows
+                if potential_line < 0:
+                    potential_line = 0
+                current_line = potential_line
 
             boxed.erase()
             boxed.refresh()
@@ -158,75 +168,3 @@ class InteractiveStatus():
                     self.show_status()
         finally:
             self.exit()
-
-
-
-# 1
-# 2
-# 3
-# 4
-# 5
-# 6
-# 7
-# 8
-# 9
-
-
-#
-#     while 1:
-#         c = self.stdscr.getch()
-#         if c == ord('q'):
-#             break
-#         elif c == ord('a'):
-#             self.add()
-#         elif c == ord('c'):
-#             self.checkout()
-#         elif c == ord('d'):
-#             self.diff()
-#         elif c == ord('r'):
-#             self.git_rm()
-#         elif c == ord('i'):
-#             self.ignore()
-#         elif c == ord('u'):
-#             self.unstage()
-#         elif c == ord('f'):
-#             self.commit()
-#         elif c == curses.KEY_UP or c == ord('k'):
-#             self.status_wrapper.move_selection_up()
-#             self.show_status()
-#         elif c == curses.KEY_DOWN or c == ord('j'):
-#             self.status_wrapper.move_selection_down()
-#             self.show_status()
-#         else:
-#             self.show_status()
-# finally:
-#     self.exit()
-#
-#     while 1:
-#         c = self.stdscr.getch()
-#         if c == ord('q'):
-#             break
-#         elif c == ord('a'):
-#             self.add()
-#         elif c == ord('c'):
-#             self.checkout()
-#         elif c == ord('d'):
-#             self.diff()
-#         elif c == ord('r'):
-#             self.git_rm()
-#         elif c == ord('i'):
-#             self.ignore()
-#         elif c == ord('u'):
-#             self.unstage()
-#         elif c == ord('f'):
-#             self.commit()
-#         elif c == curses.KEY_UP or c == ord('k'):
-#             self.status_wrapper.move_selection_up()
-#             self.show_status()
-#         elif c == curses.KEY_DOWN or c == ord('j'):
-#             self.status_wrapper.move_selection_down()
-#             self.show_status()
-#         else:
-#             self.show_status()
-# finally:
-#     self.exit()
