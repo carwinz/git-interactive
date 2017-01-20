@@ -86,7 +86,7 @@ class InteractiveStatus():
         lines = diff.split("\n")
         line_count = len(lines)
 
-        boxed = curses.newwin(curses.LINES - 2, curses.COLS - 2, 1, 1)
+        boxed = curses.newwin(curses.LINES - 1, curses.COLS - 1, 0, 0)
         boxed.scrollok(1)
         max_rows = boxed.getmaxyx()[0]
         first = True
