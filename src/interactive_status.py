@@ -92,30 +92,29 @@ class InteractiveStatus():
         first = True
 
         while 1:
-            c = None
             if first:
                 first = False
             else:
                 c = self.stdscr.getch()
 
-            if c == ord('q'):
-                break
-            elif c == curses.KEY_UP or c == ord('k'):
-                if current_line > 0:
-                    current_line = current_line - 1
-            elif c == curses.KEY_DOWN or c == ord('j'):
-                if current_line < line_count - max_rows:
-                    current_line = current_line + 1
-            elif c == curses.KEY_NPAGE:
-                potential_line = current_line + max_rows
-                if potential_line > line_count - max_rows:
-                    potential_line = line_count - max_rows
-                current_line = potential_line
-            elif c == curses.KEY_PPAGE:
-                potential_line = current_line - max_rows
-                if potential_line < 0:
-                    potential_line = 0
-                current_line = potential_line
+                if c == curses.KEY_UP or c == ord('k'):
+                    if current_line > 0:
+                        current_line = current_line - 1
+                elif c == curses.KEY_DOWN or c == ord('j'):
+                    if current_line < line_count - max_rows:
+                        current_line = current_line + 1
+                elif c == curses.KEY_NPAGE:
+                    potential_line = current_line + max_rows
+                    if potential_line > line_count - max_rows:
+                        potential_line = line_count - max_rows
+                    current_line = potential_line
+                elif c == curses.KEY_PPAGE:
+                    potential_line = current_line - max_rows
+                    if potential_line < 0:
+                        potential_line = 0
+                    current_line = potential_line
+                else:
+                    break
 
             boxed.erase()
             boxed.refresh()

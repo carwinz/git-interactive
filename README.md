@@ -11,11 +11,18 @@ Simply use the arrow keys to go the appropriate line and press one of the follow
 * i - to add to the ignore file
 * u - to unstage the file
 
+## Building
+
+    ./scripts/bundle
+
 ## Installation
 
-    cp dist/git-interactive /usr/local/bin/
-    chmod +x /usr/local/bin/git-interactive
+    ./scripts/install
 
 Then run:
 
     git interactive
+
+## Running locally
+
+    ./scripts/bundle && dist/git-interactive
