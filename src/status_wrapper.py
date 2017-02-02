@@ -73,5 +73,14 @@ class StatusWrapper():
                 return 'Staged'
         return None
 
+    def can_amend_commit(self):
+        for line in self.status_lines:
+            if line.startswith('Your branch is ahead of'):
+                return True
+        return False
+
     def current_status(self):
         return self.status
+
+    def current_status_annotated(self):
+        return self.status_lines

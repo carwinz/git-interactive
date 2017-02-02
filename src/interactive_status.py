@@ -23,15 +23,21 @@ class InteractiveStatus():
         self.status_wrapper.update_status()
         self.stdscr.clear()
         self.stdscr.addstr(0, 0, self.status_wrapper.current_status())
-        file_section = self.status_wrapper.selected_file_section()
-        if file_section == 'Staged':
-            self.stdscr.addstr(self.status_wrapper.line_count(), 0, 'actions: d = view diff; u = unstage; f = commit; q = quit')
-        if file_section == 'Not Staged':
-            self.stdscr.addstr(self.status_wrapper.line_count(), 0, 'actions: a = add/stage; c = checkout; d = view diff; r = delete; f = commit; q = quit')
-        if file_section == 'Untracked':
-            self.stdscr.addstr(self.status_wrapper.line_count(), 0, 'actions: a = add/stage; i = ignore; r = delete; f = commit; q = quit')
+        self.stdscr.addstr(self.status_wrapper.line_count(), 0, self._shortcut_reminders())
         self.stdscr.refresh()
         self.update_cursor()
+
+    def _shortcut_reminders(self):
+        commitOptions =  "f = commit; " + ('g = commit amend; ' if self.status_wrapper.can_amend_commit() else '')
+        quitOptions = "q = quit"
+        file_section = self.status_wrapper.selected_file_section()
+        if file_section == 'Staged':
+            return 'actions: d = view diff; u = unstage; ' + commitOptions + quitOptions
+        if file_section == 'Not Staged':
+            return 'actions: a = add/stage; c = checkout; d = view diff; r = delete; ' + commitOptions + quitOptions
+        if file_section == 'Untracked':
+            return 'actions: a = add/stage; i = ignore; r = delete; ' + commitOptions + quitOptions
+        return None
 
     def update_cursor(self):
         curses.setsyx(self.status_wrapper.selected_line_index, 0)
@@ -60,6 +66,10 @@ class InteractiveStatus():
             call(["rm", line.strip()])
         else:
             call(["git", "rm", line.strip()])
+        self.show_status()
+
+    def commitAmend(self):
+        call(["git", "commit", "--amend", "--no-edit"])
         self.show_status()
 
     def commit(self):
@@ -96,7 +106,6 @@ class InteractiveStatus():
                 first = False
             else:
                 c = self.stdscr.getch()
-
                 if c == curses.KEY_UP or c == ord('k'):
                     if current_line > 0:
                         current_line = current_line - 1
@@ -157,6 +166,9 @@ class InteractiveStatus():
                     self.unstage()
                 elif c == ord('f'):
                     self.commit()
+                elif c == ord('g'):
+                    if self.status_wrapper.can_amend_commit():
+                        self.commitAmend()
                 elif c == curses.KEY_UP or c == ord('k'):
                     self.status_wrapper.move_selection_up()
                     self.show_status()
