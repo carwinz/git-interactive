@@ -30,4 +30,7 @@ Then run:
 ## Roadmap
 
 * BUG: when status has a log of lines, the app crashes
-* Use colour in the
+* Use colour in the status
+* Stage individual chunks
+* Show which commits
+* Make git log easier
