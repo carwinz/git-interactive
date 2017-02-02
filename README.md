@@ -26,3 +26,8 @@ Then run:
 ## Running locally
 
     ./scripts/bundle && dist/git-interactive
+
+## Roadmap
+
+* BUG: when status has a log of lines, the app crashes
+* Use colour in the
