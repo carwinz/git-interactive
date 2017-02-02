@@ -31,6 +31,7 @@ Then run:
 
 * BUG: when status has a log of lines, the app crashes
 * Use colour in the status
+* When changes can be pushed, do push to remote
 * Stage individual chunks
 * Show which commits
 * Make git log easier
