@@ -65,13 +65,22 @@ class StatusWrapper():
         line = self.selected_line_index
         while line > 0:
             line = line - 1
-            if 'Untracked files:' == self.status_lines[line]:
+            if self._is_untracked_line(self.status_lines[line]):
                 return 'Untracked'
-            if 'Changes not staged for commit:' == self.status_lines[line]:
+            if self._is_not_staged_line(self.status_lines[line]):
                 return 'Not Staged'
-            if 'Changes to be committed:' == self.status_lines[line]:
+            if self._is_staged_line(self.status_lines[line]):
                 return 'Staged'
         return None
+
+    def _is_untracked_line(self, line):
+        return 'Untracked files:' == line
+
+    def _is_not_staged_line(self, line):
+        return 'Changes not staged for commit:' == line
+
+    def _is_staged_line(self, line):
+        return 'Changes to be committed:' == line
 
     def can_amend_commit(self):
         for line in self.status_lines:
@@ -83,4 +92,14 @@ class StatusWrapper():
         return self.status
 
     def current_status_annotated(self):
-        return self.status_lines
+        result = []
+        section = None
+        for line in self.status_lines:
+            if self._is_untracked_line(line):
+                section = 'Untracked'
+            if self._is_not_staged_line(line):
+                section = 'Not Staged'
+            if self._is_staged_line(line):
+                section = 'Staged'
+            result.append({'line': line, 'section': section, 'isAFile': self._is_line_a_file(line)})
+        return result

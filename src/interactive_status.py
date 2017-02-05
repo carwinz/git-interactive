@@ -22,7 +22,21 @@ class InteractiveStatus():
     def show_status(self):
         self.status_wrapper.update_status()
         self.stdscr.clear()
-        self.stdscr.addstr(0, 0, self.status_wrapper.current_status())
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_GREEN, 0)
+        curses.init_pair(2, curses.COLOR_RED, 0)
+
+        i = 0
+        for line in self.status_wrapper.current_status_annotated():
+            if line['isAFile'] and line['section'] == 'Staged':
+                self.stdscr.addstr(i, 0, line['line'], curses.color_pair(1))
+            elif line['isAFile']:
+                self.stdscr.addstr(i, 0, line['line'], curses.color_pair(2))
+            else:
+                curses.use_default_colors()
+                self.stdscr.addstr(i, 0, line['line'])
+            i = i + 1
+
         self.stdscr.addstr(self.status_wrapper.line_count(), 0, self._shortcut_reminders())
         self.stdscr.refresh()
         self.update_cursor()
