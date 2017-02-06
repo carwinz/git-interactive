@@ -35,3 +35,5 @@ Then run:
 * Stage individual chunks
 * Show which commits
 * Make git log easier
+* Show side by side diff. Something like: https://github.com/ymattw/cdiff
+* Background check remote for changes and notify. http://stackoverflow.com/questions/2514270/how-to-check-for-changes-on-remote-origin-git-repository
