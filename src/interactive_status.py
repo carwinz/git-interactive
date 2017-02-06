@@ -22,9 +22,8 @@ class InteractiveStatus():
     def show_status(self):
         self.status_wrapper.update_status()
         self.stdscr.clear()
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_GREEN, 0)
-        curses.init_pair(2, curses.COLOR_RED, 0)
+        curses.init_pair(1, curses.COLOR_GREEN, -1)
+        curses.init_pair(2, curses.COLOR_RED, -1)
 
         i = 0
         for line in self.status_wrapper.current_status_annotated():
@@ -157,6 +156,8 @@ class InteractiveStatus():
             curses.noecho() # Don't echo keys to the screen
             curses.cbreak() # react to keys without requiring the Enter key to be pressed
             self.stdscr.keypad(1) # have curses translate special keys
+            curses.start_color()
+            curses.use_default_colors()
 
             signal.signal(signal.SIGINT, self.signal_handler)
 
