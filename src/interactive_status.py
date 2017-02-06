@@ -32,7 +32,6 @@ class InteractiveStatus():
             elif line['isAFile']:
                 self.stdscr.addstr(i, 0, line['line'], curses.color_pair(2))
             else:
-                curses.use_default_colors()
                 self.stdscr.addstr(i, 0, line['line'])
             i = i + 1
 
@@ -153,7 +152,12 @@ class InteractiveStatus():
             boxed.refresh()
 
             for line in lines[current_line:(max_rows+current_line)]:
-                boxed.addstr(line)
+                if line.startswith('+'):
+                    boxed.addstr(line, curses.color_pair(1))
+                elif line.startswith('-'):
+                    boxed.addstr(line, curses.color_pair(2))
+                else:
+                    boxed.addstr(line)
                 boxed.addch("\n")
             boxed.refresh()
 

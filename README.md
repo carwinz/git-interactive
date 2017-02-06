@@ -29,10 +29,10 @@ Then run:
 
 ## Roadmap
 
-* BUG: when status has a log of lines, the app crashes
+* BUG: when status has a lot of lines (more than the screen height), the app crashes
 * When changes can be pushed, do push to remote
 * Stage individual chunks
-* Show which commits
+* Show which commits are committed and ready to push
 * Make git log easier
 * Show side by side diff. Something like: https://github.com/ymattw/cdiff
 * Background check remote for changes and notify. http://stackoverflow.com/questions/2514270/how-to-check-for-changes-on-remote-origin-git-repository
