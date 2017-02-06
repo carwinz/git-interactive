@@ -87,11 +87,13 @@ class InteractiveStatus():
         self.show_status()
 
     def push(self):
-        output = check_output(["git", "push"])
-        self.stdscr.clear()
-        self.stdscr.addstr(0, 0, output)
-        self.stdscr.refresh()
-        self.stdscr.getch()
+        call(["git", "push"])
+        self.show_status()
+        # output = check_output(["git", "push"])
+        # self.stdscr.clear()
+        # self.stdscr.addstr(0, 0, output)
+        # self.stdscr.refresh()
+        # self.stdscr.getch()
 
     def commit(self):
         curses.echo()
