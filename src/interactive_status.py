@@ -36,7 +36,7 @@ class InteractiveStatus():
                 self.stdscr.addstr(i, 0, line['line'])
             i = i + 1
 
-        self.stdscr.addstr(self.status_wrapper.line_count(), 0, self._shortcut_reminders())
+        self.stdscr.addstr(curses.LINES - 1, 0, self._shortcut_reminders())
         self.stdscr.refresh()
         self.update_cursor()
 
@@ -50,7 +50,7 @@ class InteractiveStatus():
             return 'actions: a = add/stage; c = checkout; d = view diff; r = delete; ' + commitOptions + quitOptions
         if file_section == 'Untracked':
             return 'actions: a = add/stage; i = ignore; r = delete; ' + commitOptions + quitOptions
-        return None
+        return quitOptions
 
     def update_cursor(self):
         curses.setsyx(self.status_wrapper.selected_line_index, 0)
@@ -136,6 +136,7 @@ class InteractiveStatus():
                         potential_line = 0
                     current_line = potential_line
                 else:
+                    self._handle_shortcut_instruction(c)
                     break
 
             boxed.erase()
@@ -146,7 +147,32 @@ class InteractiveStatus():
                 boxed.addch("\n")
             boxed.refresh()
 
-        self.show_status()
+    def _handle_shortcut_instruction(self, c):
+        if c == ord('a'):
+            self.add()
+        elif c == ord('c'):
+            self.checkout()
+        elif c == ord('d'):
+            self.diff()
+        elif c == ord('r'):
+            self.git_rm()
+        elif c == ord('i'):
+            self.ignore()
+        elif c == ord('u'):
+            self.unstage()
+        elif c == ord('f'):
+            self.commit()
+        elif c == ord('g'):
+            if self.status_wrapper.can_amend_commit():
+                self.commitAmend()
+        elif c == curses.KEY_UP or c == ord('k'):
+            self.status_wrapper.move_selection_up()
+            self.show_status()
+        elif c == curses.KEY_DOWN or c == ord('j'):
+            self.status_wrapper.move_selection_down()
+            self.show_status()
+        else:
+            self.show_status()
 
     def run(self):
 
@@ -167,30 +193,6 @@ class InteractiveStatus():
                 c = self.stdscr.getch()
                 if c == ord('q'):
                     break
-                elif c == ord('a'):
-                    self.add()
-                elif c == ord('c'):
-                    self.checkout()
-                elif c == ord('d'):
-                    self.diff()
-                elif c == ord('r'):
-                    self.git_rm()
-                elif c == ord('i'):
-                    self.ignore()
-                elif c == ord('u'):
-                    self.unstage()
-                elif c == ord('f'):
-                    self.commit()
-                elif c == ord('g'):
-                    if self.status_wrapper.can_amend_commit():
-                        self.commitAmend()
-                elif c == curses.KEY_UP or c == ord('k'):
-                    self.status_wrapper.move_selection_up()
-                    self.show_status()
-                elif c == curses.KEY_DOWN or c == ord('j'):
-                    self.status_wrapper.move_selection_down()
-                    self.show_status()
-                else:
-                    self.show_status()
+                self._handle_shortcut_instruction(c)
         finally:
             self.exit()

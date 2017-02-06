@@ -65,12 +65,13 @@ class StatusWrapper():
         line = self.selected_line_index
         while line > 0:
             line = line - 1
-            if self._is_untracked_line(self.status_lines[line]):
-                return 'Untracked'
-            if self._is_not_staged_line(self.status_lines[line]):
-                return 'Not Staged'
-            if self._is_staged_line(self.status_lines[line]):
-                return 'Staged'
+            if  (len(self.status_lines) > line):
+                if self._is_untracked_line(self.status_lines[line]):
+                    return 'Untracked'
+                if self._is_not_staged_line(self.status_lines[line]):
+                    return 'Not Staged'
+                if self._is_staged_line(self.status_lines[line]):
+                    return 'Staged'
         return None
 
     def _is_untracked_line(self, line):
