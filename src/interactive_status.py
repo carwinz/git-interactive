@@ -43,14 +43,15 @@ class InteractiveStatus():
     def _shortcut_reminders(self):
         commitOptions =  "f = commit; " + ('g = commit amend; ' if self.status_wrapper.can_amend_commit() else '')
         quitOptions = "q = quit"
+        pushOptions = ('p = push; ' if self.status_wrapper.can_amend_commit() else '')
         file_section = self.status_wrapper.selected_file_section()
         if file_section == 'Staged':
-            return 'actions: d = view diff; u = unstage; ' + commitOptions + quitOptions
+            return 'actions: d = view diff; u = unstage; ' + commitOptions + pushOptions + quitOptions
         if file_section == 'Not Staged':
-            return 'actions: a = add/stage; c = checkout; d = view diff; r = delete; ' + commitOptions + quitOptions
+            return 'actions: a = add/stage; c = checkout; d = view diff; r = delete; ' + commitOptions + pushOptions + quitOptions
         if file_section == 'Untracked':
-            return 'actions: a = add/stage; i = ignore; r = delete; ' + commitOptions + quitOptions
-        return quitOptions
+            return 'actions: a = add/stage; i = ignore; r = delete; ' + commitOptions + pushOptions + quitOptions
+        return pushOptions + quitOptions
 
     def update_cursor(self):
         curses.setsyx(self.status_wrapper.selected_line_index, 0)
@@ -84,6 +85,13 @@ class InteractiveStatus():
     def commitAmend(self):
         call(["git", "commit", "--amend", "--no-edit"])
         self.show_status()
+
+    def push(self):
+        output = check_output(["git", "push"])
+        self.stdscr.clear()
+        self.stdscr.addstr(0, 0, output)
+        self.stdscr.refresh()
+        self.stdscr.getch()
 
     def commit(self):
         curses.echo()
@@ -171,6 +179,8 @@ class InteractiveStatus():
         elif c == curses.KEY_DOWN or c == ord('j'):
             self.status_wrapper.move_selection_down()
             self.show_status()
+        elif c == ord('p'):
+            self.push()
         else:
             self.show_status()
 
