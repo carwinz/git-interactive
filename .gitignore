@@ -1,3 +1,6 @@
 src/status_wrapper.pyc
-dist/git-interactive.zip
+dist
 src/interactive_status.pyc
+src/scrollable_window.pyc
+src/test/__init__.pyc
+src/test/scrollable_window_test.pyc

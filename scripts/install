@@ -1,4 +1,12 @@
 #!/bin/bash
 
-cp dist/git-interactive /usr/local/bin/
-chmod +x /usr/local/bin/git-interactive
+set -e
+
+./scripts/bundle
+./scripts/test
+
+echo "Copying binaries"
+
+chmod +x dist/git-interactive
+cp dist/git-interactive ~/.bin/
+cp dist/git-interactive ~/app/Dropbox/dev/workspace/castle-builder/src/runner/jobs/git/scripts/

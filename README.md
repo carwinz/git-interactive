@@ -29,8 +29,6 @@ Then run:
 
 ## Roadmap
 
-* BUG: when status has a lot of lines (more than the screen height), the app crashes
-* When changes can be pushed, do push to remote
 * Stage individual chunks
 * Show which commits are committed and ready to push
 * Make git log easier
