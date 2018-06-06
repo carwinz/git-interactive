@@ -8,6 +8,7 @@ import subprocess
 from subprocess import call
 from git_status_wrapper import GitStatusWrapper
 from git_diff import GitDiff
+from git import Git
 from scrollable_window import ScrollableWindow
 from scrollable_window_renderer import ScrollableWindowRenderer
 
@@ -92,6 +93,8 @@ class InteractiveStatus():
         return pushOptions + quitOptions
 
     def ignore(self, filename):
+        # TODO needs to be smarter and find the root of the git repo
+        # TODO perhaps it could stage the change as well if there are no other changes
         with open(".gitignore", "a") as ignores:
             ignores.write(filename + '\n')
 
@@ -103,11 +106,6 @@ class InteractiveStatus():
         else:
             call(["git", "rm", filename])
 
-    def commitAmend(self):
-        devnull = open(os.devnull, 'w')
-        subprocess.call(["git", "commit", "--amend", "--no-edit"], stdout=devnull, stderr=devnull)
-        devnull.close()
-
     def _show_text(self, text):
         self.main_window.clear()
         self.main_window.addstr(text)
@@ -118,22 +116,6 @@ class InteractiveStatus():
         self.main_window.getch()
         self.main_window.clear()
         self.main_window.refresh()
-
-    def stash(self):
-        devnull = open(os.devnull, 'w')
-        output = subprocess.check_output(["git", "stash"], stderr=devnull)
-        self._show_text_and_wait_for_keypress(output + "\nPress any key")
-        devnull.close()
-
-    def stash_apply(self):
-        devnull = open(os.devnull, 'w')
-        subprocess.call(["git", "stash", "apply"], stdout=devnull, stderr=devnull)
-        devnull.close()
-
-    def stash_pop(self):
-        devnull = open(os.devnull, 'w')
-        subprocess.call(["git", "stash", "pop"], stdout=devnull, stderr=devnull)
-        devnull.close()
 
     def push(self):
         self.main_window.clear()
@@ -265,22 +247,23 @@ class InteractiveStatus():
                     self.show_status(None, None)
                 elif c == ord('g'):
                     if self.status_wrapper.can_amend_commit():
-                        self.commitAmend()
+                        Git.commit_amend()
                         self.show_status(None, None)
                 elif c == ord('s'): # stash "submenu"
                     while 1:
                         self._show_text("Stash:\n * s to stash changes\n * a to apply changes\n * p to pop changes\n * q to go back")
                         c = self.main_window.getch()
                         if c == ord('s'):
-                            self.stash()
+                            output = Git.stash()
+                            self._show_text_and_wait_for_keypress(output + "\nPress any key")
                             self.show_status(None, None)
                             break
                         elif c == ord('p'):
-                            self.stash_pop()
+                            Git.stash_pop()
                             self.show_status(None, None)
                             break
                         elif c == ord('a'):
-                            self.stash_apply()
+                            Git.stash_apply()
                             self.show_status(None, None)
                             break
                         elif c == ord('q'):
