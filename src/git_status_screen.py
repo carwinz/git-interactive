@@ -15,8 +15,8 @@ class GitStatusScreen():
 
     status_wrapper = GitStatusWrapper()
 
-    def __init__(self, main_window):
-        self.main_window = main_window
+    def __init__(self, curses_window):
+        self.curses_window = curses_window
 
     def show_status(self, section, fileToHighlight):
         self.status_wrapper.update_status()
@@ -101,36 +101,36 @@ class GitStatusScreen():
             call(["git", "rm", filename])
 
     def _show_text(self, text):
-        self.main_window.clear()
-        self.main_window.addstr(text)
-        self.main_window.refresh()
+        self.curses_window.get_window().clear()
+        self.curses_window.get_window().addstr(text)
+        self.curses_window.get_window().refresh()
 
     def _show_text_and_wait_for_keypress(self, text):
         self._show_text(text)
-        self.main_window.getch()
-        self.main_window.clear()
-        self.main_window.refresh()
+        self.curses_window.get_window().getch()
+        self.curses_window.get_window().clear()
+        self.curses_window.get_window().refresh()
 
     def push(self):
-        self.main_window.clear()
-        self.main_window.addstr(0, 0, 'Pushing to remote...\n')
-        self.main_window.refresh()
+        self.curses_window.get_window().clear()
+        self.curses_window.get_window().addstr(0, 0, 'Pushing to remote...\n')
+        self.curses_window.get_window().refresh()
 
         cmd = ["git", "push", "--porcelain"]
 
         output = ''
         for line in self.execute_streaming(cmd):
             output = output + line
-            self.main_window.clear()
-            self.main_window.addstr(output)
-            self.main_window.refresh()
+            self.curses_window.get_window().clear()
+            self.curses_window.get_window().addstr(output)
+            self.curses_window.get_window().refresh()
 
-        self.main_window.addstr("Push finished. Press any key")
-        self.main_window.refresh()
+        self.curses_window.get_window().addstr("Push finished. Press any key")
+        self.curses_window.get_window().refresh()
 
-        self.main_window.getch()
-        self.main_window.clear()
-        self.main_window.refresh()
+        self.curses_window.get_window().getch()
+        self.curses_window.get_window().clear()
+        self.curses_window.get_window().refresh()
 
     def execute_streaming(self, cmd):
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
@@ -144,19 +144,18 @@ class GitStatusScreen():
     def commit(self):
         curses.echo()
         curses.raw()
-        self.main_window.clear()
-        self.main_window.addstr(0, 0, 'Commit message: ')
-        self.main_window.refresh()
-        command = ["git", "commit", "-m", self.main_window.getstr()]
-        curses.noecho()
-        curses.cbreak()
+        self.curses_window.get_window().clear()
 
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.main_window.clear()
-        stdout, stderr = p.communicate()
-        self.main_window.addstr(0, 0, stdout)
-        self.main_window.refresh()
-        self.main_window.getch()
+        child_pid = os.fork()
+        if child_pid == 0:
+           os.system('git commit')
+           os._exit(0)
+        pid, status = os.waitpid(child_pid, 0)
+
+        self.curses_window.get_window().clear()
+        self.curses_window.get_window().refresh()
+        self.curses_window.teardown()
+        self.curses_window.init()
 
     def _can_cursor_visit_line(self, line):
         return line['isAFile']
@@ -178,7 +177,7 @@ class GitStatusScreen():
                 c = followupWith
                 followupWith = None
             else:
-                c = self.main_window.getch()
+                c = self.curses_window.get_window().getch()
             line = self.status_window.get_current_line()
             if c == curses.KEY_UP or c == ord('k'):
                 self.status_window.line_up()
@@ -203,7 +202,7 @@ class GitStatusScreen():
             elif c == ord('d'):
                 if line['isAFile']:
                     section, nextFile = line['section'], line['filename']
-                    result = GitDiffScreen(self.main_window).show(line['filename'], line['section'] == 'Staged', line['section'] == 'Untracked', self._footer_shortcut_reminders(line))
+                    result = GitDiffScreen(self.curses_window.get_window()).show(line['filename'], line['section'] == 'Staged', line['section'] == 'Untracked', self._footer_shortcut_reminders(line))
                     if result != ord('q'):
                         followupWith = result
                     else:
@@ -233,7 +232,7 @@ class GitStatusScreen():
             elif c == ord('s'): # stash "submenu"
                 while 1:
                     self._show_text("Stash:\n * s to stash changes\n * a to apply changes\n * p to pop changes\n * q to go back")
-                    c = self.main_window.getch()
+                    c = self.curses_window.get_window().getch()
                     if c == ord('s'):
                         output = Git.stash()
                         self._show_text_and_wait_for_keypress(output + "\nPress any key")
@@ -261,5 +260,5 @@ class GitStatusScreen():
                 self._determine_cursor_row_and_render_lines(line['section'], line['filename'])
             else:
                 # self._show_text("Unhandled key " + str(c))
-                # c = self.main_window.getch()
+                # c = self.curses_window.get_window().getch()
                 self.show_status(None, None)
