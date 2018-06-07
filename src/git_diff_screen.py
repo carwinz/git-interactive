@@ -28,21 +28,21 @@ class GitDiffScreen():
     def show(self, filename, isStaged, isUntracked, footerText):
         self.footerText = footerText
 
-        if self._is_binary_file(filename):
-            diff = "Unable to diff binary files"
+        if not os.path.isfile(filename):
+            diff = 'File no longer exists or is a directory'
         else:
-            if isUntracked:
-                if os.path.isfile(filename):
+            if self._is_binary_file(filename):
+                diff = "Unable to diff binary files"
+            else:
+                if isUntracked:
                     with open(filename, 'r') as myfile:
                         diff = myfile.read()
                 else:
-                    diff = 'File no longer exists or is a directory'
-            else:
-                command = ["git", "diff"]
-                if isStaged:
-                    command.append('--staged')
-                command.append(filename)
-                diff = check_output(command)
+                    command = ["git", "diff"]
+                    if isStaged:
+                        command.append('--staged')
+                    command.append(filename)
+                    diff = check_output(command)
 
         self.diff_window = ScrollableWindow(self._line_renderer, None, self._footer_text, ScrollableWindowRenderer())
         self.diff_window.display(diff.split("\n"), 0)
