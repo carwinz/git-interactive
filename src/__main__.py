@@ -1,8 +1,7 @@
-
-from interactive_status import InteractiveStatus
+from runner import Runner
 
 def main():
-    InteractiveStatus().run()
+    Runner().run()
 
 if __name__ == '__main__':
   main()

@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import signal
 import sys
 import curses
 import os
@@ -12,17 +11,12 @@ from git import Git
 from scrollable_window import ScrollableWindow
 from scrollable_window_renderer import ScrollableWindowRenderer
 
-class InteractiveStatus():
+class GitStatusScreen():
 
     status_wrapper = GitStatusWrapper()
 
-    def signal_handler(self, signal, frame):
-        self.exit()
-        sys.exit(0)
-
-    def exit(self):
-        curses.nocbreak(); self.main_window.keypad(0); curses.echo()
-        curses.endwin()
+    def __init__(self, main_window):
+        self.main_window = main_window
 
     def show_status(self, section, fileToHighlight):
         self.status_wrapper.update_status()
@@ -175,113 +169,97 @@ class InteractiveStatus():
         else:
             return None, line['line']
 
-    def run(self):
-        try:
-            signal.signal(signal.SIGINT, self.signal_handler)
-
-            self.main_window = curses.initscr()
-            curses.noecho() # Don't echo keys to the screen
-            curses.cbreak() # react to keys without requiring the Enter key to be pressed
-            self.main_window.keypad(1) # have curses translate special keys
-            curses.start_color()
-            curses.use_default_colors()
-            curses.init_pair(1, curses.COLOR_GREEN, -1)
-            curses.init_pair(2, curses.COLOR_RED, -1)
-            self.main_window.refresh()
-
-            followupWith = None
-            self.status_window = ScrollableWindow(self._git_status_line_renderer, self._can_cursor_visit_line, self._footer_shortcut_reminders, ScrollableWindowRenderer())
-            self.show_status(None, None)
-            while 1:
-                if followupWith:
-                    c = followupWith
-                    followupWith = None
-                else:
+    def show(self):
+        followupWith = None
+        self.status_window = ScrollableWindow(self._git_status_line_renderer, self._can_cursor_visit_line, self._footer_shortcut_reminders, ScrollableWindowRenderer())
+        self.show_status(None, None)
+        while 1:
+            if followupWith:
+                c = followupWith
+                followupWith = None
+            else:
+                c = self.main_window.getch()
+            line = self.status_window.get_current_line()
+            if c == curses.KEY_UP or c == ord('k'):
+                self.status_window.line_up()
+            elif c == curses.KEY_DOWN or c == ord('j'):
+                self.status_window.line_down()
+            elif c == curses.KEY_PPAGE:
+                self.status_window.page_up()
+            elif c == curses.KEY_NPAGE:
+                self.status_window.page_down()
+            elif c == ord('a'):
+                if line['isAFile']:
+                    section, nextFile = self._find_status_file_after(line['section'], line['filename'])
+                    if not section:
+                        section = line['section']
+                    subprocess.call(["git", "add", line['filename']], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
+                    self.show_status(section, nextFile)
+            elif c == ord('c'):
+                if line['isAFile']:
+                    section, nextFile = self._find_status_file_after(line['section'], line['filename'])
+                    call(["git", "checkout", line['filename']])
+                    self.show_status(section, nextFile)
+            elif c == ord('d'):
+                if line['isAFile']:
+                    section, nextFile = line['section'], line['filename']
+                    result = GitDiffScreen(self.main_window).show(line['filename'], line['section'] == 'Staged', line['section'] == 'Untracked', self._footer_shortcut_reminders(line))
+                    if result != ord('q'):
+                        followupWith = result
+                    else:
+                        self.show_status(line['section'], line['filename'])
+            elif c == ord('r'):
+                if line['isAFile']:
+                    section, nextFile = self._find_status_file_after(line['section'], line['filename'])
+                    self.git_rm(line['filename'], line['section'])
+                    self.show_status(section, nextFile)
+            elif c == ord('i'):
+                if line['isAFile']:
+                    section, nextFile = self._find_status_file_after(line['section'], line['filename'])
+                    self.ignore(line['filename'])
+                    self.show_status(section, nextFile)
+            elif c == ord('u'):
+                if line['isAFile']:
+                    section, nextFile = self._find_status_file_after(line['section'], line['filename'])
+                    subprocess.call(["git", "reset", "HEAD", line['filename']], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
+                    self.show_status(section, nextFile)
+            elif c == ord('f'):
+                self.commit()
+                self.show_status(None, None)
+            elif c == ord('g'):
+                if self.status_wrapper.can_amend_commit():
+                    Git.commit_amend()
+                    self.show_status(None, None)
+            elif c == ord('s'): # stash "submenu"
+                while 1:
+                    self._show_text("Stash:\n * s to stash changes\n * a to apply changes\n * p to pop changes\n * q to go back")
                     c = self.main_window.getch()
-                line = self.status_window.get_current_line()
-                if c == curses.KEY_UP or c == ord('k'):
-                    self.status_window.line_up()
-                elif c == curses.KEY_DOWN or c == ord('j'):
-                    self.status_window.line_down()
-                elif c == curses.KEY_PPAGE:
-                    self.status_window.page_up()
-                elif c == curses.KEY_NPAGE:
-                    self.status_window.page_down()
-                elif c == ord('a'):
-                    if line['isAFile']:
-                        section, nextFile = self._find_status_file_after(line['section'], line['filename'])
-                        if not section:
-                            section = line['section']
-                        subprocess.call(["git", "add", line['filename']], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
-                        self.show_status(section, nextFile)
-                elif c == ord('c'):
-                    if line['isAFile']:
-                        section, nextFile = self._find_status_file_after(line['section'], line['filename'])
-                        call(["git", "checkout", line['filename']])
-                        self.show_status(section, nextFile)
-                elif c == ord('d'):
-                    if line['isAFile']:
-                        section, nextFile = line['section'], line['filename']
-                        result = GitDiffScreen(self.main_window).show(line['filename'], line['section'] == 'Staged', line['section'] == 'Untracked', self._footer_shortcut_reminders(line))
-                        if result != ord('q'):
-                            followupWith = result
-                        else:
-                            self.show_status(line['section'], line['filename'])
-                elif c == ord('r'):
-                    if line['isAFile']:
-                        section, nextFile = self._find_status_file_after(line['section'], line['filename'])
-                        self.git_rm(line['filename'], line['section'])
-                        self.show_status(section, nextFile)
-                elif c == ord('i'):
-                    if line['isAFile']:
-                        section, nextFile = self._find_status_file_after(line['section'], line['filename'])
-                        self.ignore(line['filename'])
-                        self.show_status(section, nextFile)
-                elif c == ord('u'):
-                    if line['isAFile']:
-                        section, nextFile = self._find_status_file_after(line['section'], line['filename'])
-                        subprocess.call(["git", "reset", "HEAD", line['filename']], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
-                        self.show_status(section, nextFile)
-                elif c == ord('f'):
-                    self.commit()
-                    self.show_status(None, None)
-                elif c == ord('g'):
-                    if self.status_wrapper.can_amend_commit():
-                        Git.commit_amend()
+                    if c == ord('s'):
+                        output = Git.stash()
+                        self._show_text_and_wait_for_keypress(output + "\nPress any key")
                         self.show_status(None, None)
-                elif c == ord('s'): # stash "submenu"
-                    while 1:
-                        self._show_text("Stash:\n * s to stash changes\n * a to apply changes\n * p to pop changes\n * q to go back")
-                        c = self.main_window.getch()
-                        if c == ord('s'):
-                            output = Git.stash()
-                            self._show_text_and_wait_for_keypress(output + "\nPress any key")
-                            self.show_status(None, None)
-                            break
-                        elif c == ord('p'):
-                            Git.stash_pop()
-                            self.show_status(None, None)
-                            break
-                        elif c == ord('a'):
-                            Git.stash_apply()
-                            self.show_status(None, None)
-                            break
-                        elif c == ord('q'):
-                            self.show_status(None, None)
-                            break
+                        break
+                    elif c == ord('p'):
+                        Git.stash_pop()
+                        self.show_status(None, None)
+                        break
+                    elif c == ord('a'):
+                        Git.stash_apply()
+                        self.show_status(None, None)
+                        break
+                    elif c == ord('q'):
+                        self.show_status(None, None)
+                        break
 
-                elif c == ord('p'):
-                    self.push()
-                    self.show_status(None, None)
-                elif c == ord('q'):
-                    return
-                elif c == curses.KEY_RESIZE:
-                    self.status_window.resize()
-                    self._determine_cursor_row_and_render_lines(line['section'], line['filename'])
-                else:
-                    # self._show_text("Unhandled key " + str(c))
-                    # c = self.main_window.getch()
-                    self.show_status(None, None)
-
-        finally:
-            self.exit()
+            elif c == ord('p'):
+                self.push()
+                self.show_status(None, None)
+            elif c == ord('q'):
+                return
+            elif c == curses.KEY_RESIZE:
+                self.status_window.resize()
+                self._determine_cursor_row_and_render_lines(line['section'], line['filename'])
+            else:
+                # self._show_text("Unhandled key " + str(c))
+                # c = self.main_window.getch()
+                self.show_status(None, None)
