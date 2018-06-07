@@ -7,7 +7,7 @@ import os
 import subprocess
 from subprocess import call
 from git_status_wrapper import GitStatusWrapper
-from git_diff import GitDiff
+from git_diff_screen import GitDiffScreen
 from git import Git
 from scrollable_window import ScrollableWindow
 from scrollable_window_renderer import ScrollableWindowRenderer
@@ -222,7 +222,7 @@ class InteractiveStatus():
                 elif c == ord('d'):
                     if line['isAFile']:
                         section, nextFile = line['section'], line['filename']
-                        result = GitDiff(self.main_window).show(line['filename'], line['section'] == 'Staged', line['section'] == 'Untracked', self._footer_shortcut_reminders(line))
+                        result = GitDiffScreen(self.main_window).show(line['filename'], line['section'] == 'Staged', line['section'] == 'Untracked', self._footer_shortcut_reminders(line))
                         if result != ord('q'):
                             followupWith = result
                         else:

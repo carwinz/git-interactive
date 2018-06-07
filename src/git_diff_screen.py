@@ -7,7 +7,7 @@ from subprocess import check_output
 from scrollable_window import ScrollableWindow
 from scrollable_window_renderer import ScrollableWindowRenderer
 
-class GitDiff():
+class GitDiffScreen():
 
     def __init__(self, main_window):
         self.main_window = main_window
