@@ -112,25 +112,41 @@ class GitStatusScreen():
         self.curses_window.get_window().refresh()
 
     def push(self):
-        self.curses_window.get_window().clear()
-        self.curses_window.get_window().addstr(0, 0, 'Pushing to remote...\n')
-        self.curses_window.get_window().refresh()
+        window = self.curses_window.get_window()
+        window.clear()
+        window.addstr(0, 0, 'Pushing to remote...\n')
+        window.refresh()
 
-        cmd = ["git", "push", "--porcelain"]
+        push_cmd = ["git", "push", "--porcelain"]
 
-        output = ''
-        for line in self.execute_streaming(cmd):
-            output = output + line
-            self.curses_window.get_window().clear()
-            self.curses_window.get_window().addstr(output)
-            self.curses_window.get_window().refresh()
+        if not Git.has_remote_branch():
+            branch = Git.current_branch()
+            window.addstr("The current branch " + branch + " has no upstream branch. Set upstream to 'origin'?\n\n")
+            push_with_remote_command = ["git", "push", "--set-upstream", "origin", branch]
+            window.addstr(' '.join(push_with_remote_command) + '\n\n')
+            window.addstr('Y/n ')
+            window.refresh()
+            c = window.getch()
+            if c == ord('y') or c == 10:
+                push_cmd = push_with_remote_command
+            else:
+                push_cmd = None
+                window.addstr("Cannot push without upstream branch")
+                window.refresh()
 
-        self.curses_window.get_window().addstr("Push finished. Press any key")
-        self.curses_window.get_window().refresh()
+        if push_cmd != None:
+            output = ''
+            for line in self.execute_streaming(push_cmd):
+                output = output + line
+                window.clear()
+                window.addstr(output)
+                window.refresh()
+            window.addstr("Push finished. Press any key")
+            window.refresh()
 
-        self.curses_window.get_window().getch()
-        self.curses_window.get_window().clear()
-        self.curses_window.get_window().refresh()
+        window.getch()
+        window.clear()
+        window.refresh()
 
     def execute_streaming(self, cmd):
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
