@@ -112,11 +112,22 @@ class GitStatusScreen():
         self.curses_window.get_window().refresh()
 
     def push(self):
+
+        cmd = ["git", "push", "--porcelain"]
+
+        if not Git.remote_branch_configured():
+            self.curses_window.get_window().clear()
+            self.curses_window.get_window().addstr(0, 0, 'No upstream branch set. Would you like to: \n')
+            self.curses_window.get_window().addstr(1, 0, 'git push --set-upstream origin ' + Git.current_branch() + ' \n')
+            self.curses_window.get_window().refresh()
+            c = self.curses_window.get_window().getch()
+            if c != ord('y') and c != 10:
+                return
+            cmd = ["git", "push", "--set-upstream", "origin", Git.current_branch()]
+
         self.curses_window.get_window().clear()
         self.curses_window.get_window().addstr(0, 0, 'Pushing to remote...\n')
         self.curses_window.get_window().refresh()
-
-        cmd = ["git", "push", "--porcelain"]
 
         output = ''
         for line in self.execute_streaming(cmd):

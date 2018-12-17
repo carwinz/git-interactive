@@ -1,7 +1,6 @@
 import unittest
 import curses
 from scrollable_window import ScrollableWindow
-import logging
 
 class WindowRenderer():
     def __init__(self, rows_on_screen):
