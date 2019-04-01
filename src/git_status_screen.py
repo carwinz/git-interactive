@@ -113,7 +113,7 @@ class GitStatusScreen():
 
     def push(self):
 
-        cmd = ["git", "push", "--porcelain"]
+        cmd = ["git", "push"]
 
         if not Git.remote_branch_configured():
             self.curses_window.get_window().clear()
@@ -144,13 +144,21 @@ class GitStatusScreen():
         self.curses_window.get_window().refresh()
 
     def execute_streaming(self, cmd):
-        popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
-        for stdout_line in iter(popen.stdout.readline, ''):
-            yield stdout_line
-        popen.stdout.close()
-        return_code = popen.wait()
-        if return_code:
-            raise subprocess.CalledProcessError(return_code, cmd)
+        log_file = "/tmp/git-push.log"
+        log = open(log_file, "w", 1)
+        popen = subprocess.Popen(cmd, stdout=log, stderr=log, universal_newlines=True)
+
+        logr = open(log_file, "r", 1)
+        while True:
+            line = logr.readline()
+            if not line:
+                exit_code = popen.poll()
+                if exit_code is not None:
+                    if exit_code:
+                        raise subprocess.CalledProcessError(exit_code, cmd)
+                    break
+                continue
+            yield line
 
     def commit(self):
         curses.echo()
