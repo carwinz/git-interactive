@@ -10,6 +10,7 @@ from git_diff_screen import GitDiffScreen
 from git import Git
 from scrollable_window import ScrollableWindow
 from scrollable_window_renderer import ScrollableWindowRenderer
+# import logging
 
 class GitStatusScreen():
 
@@ -17,6 +18,7 @@ class GitStatusScreen():
 
     def __init__(self, curses_window):
         self.curses_window = curses_window
+        # logging.basicConfig(filename='/tmp/git-interactive.log',level=logging.DEBUG)
 
     def show_status(self, section, fileToHighlight):
         self.status_wrapper.update_status()
@@ -125,23 +127,44 @@ class GitStatusScreen():
                 return
             cmd = ["git", "push", "--set-upstream", "origin", Git.current_branch()]
 
+        output = 'Pushing to remote...\n'
+        try:
+            curses.curs_set(0)
+            self.git_push_window = ScrollableWindow(self._git_push_line_renderer, None, "", ScrollableWindowRenderer())
+            self.git_push_window.display(output.split("\n"), 0)
+
+            for line in self.execute_streaming(cmd):
+                output = output + line
+                self.git_push_window.display(output.split("\n"), 0)
+                self.git_push_window.move_cursor_to_last_line()
+            output = output + "Push finished. Press any key"
+            self.git_push_window.display(output.split("\n"), 0)
+            self.git_push_window.move_cursor_to_last_line()
+        except subprocess.CalledProcessError as e:
+            output = output + "Push failed. Press any key"
+            self.git_push_window.display(output.split("\n"), 0)
+            self.git_push_window.move_cursor_to_last_line()
+
+        while 1:
+            c = self.curses_window.get_window().getch()
+            if c == curses.KEY_UP or c == ord('k'):
+                self.git_push_window.line_up()
+            elif c == curses.KEY_DOWN or c == ord('j'):
+                self.git_push_window.line_down()
+            elif c == curses.KEY_PPAGE:
+                self.git_push_window.page_up()
+            elif c == curses.KEY_NPAGE:
+                self.git_push_window.page_down()
+            else:
+                break
+
+
+        curses.curs_set(1)
         self.curses_window.get_window().clear()
-        self.curses_window.get_window().addstr(0, 0, 'Pushing to remote...\n')
         self.curses_window.get_window().refresh()
 
-        output = ''
-        for line in self.execute_streaming(cmd):
-            output = output + line
-            self.curses_window.get_window().clear()
-            self.curses_window.get_window().addstr(output)
-            self.curses_window.get_window().refresh()
-
-        self.curses_window.get_window().addstr("Push finished. Press any key")
-        self.curses_window.get_window().refresh()
-
-        self.curses_window.get_window().getch()
-        self.curses_window.get_window().clear()
-        self.curses_window.get_window().refresh()
+    def _git_push_line_renderer(self, line):
+        return None, line
 
     def execute_streaming(self, cmd):
         log_file = "/tmp/git-push.log"
@@ -158,6 +181,7 @@ class GitStatusScreen():
                         raise subprocess.CalledProcessError(exit_code, cmd)
                     break
                 continue
+            # logging.debug("got git push output: " + line.strip())
             yield line
 
     def commit(self):

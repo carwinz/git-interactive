@@ -140,6 +140,13 @@ class ScrollableWindow():
                 self.first_row_of_visible_content = first_row_of_visible_content
                 self.display(self.lines, potential_cursor)
 
+    def move_cursor_to_last_line(self):
+        num_lines_in_content = len(self.lines)
+        usable_rows = self._usable_rows()
+        if num_lines_in_content > usable_rows:
+            self.first_row_of_visible_content = num_lines_in_content - usable_rows + 1
+        self.window_renderer._update_cursor(usable_rows - 1)
+
     def display(self, lines, cursor_row_index):
         self.lines = lines
         self.cursor_row_index = cursor_row_index
