@@ -13,9 +13,9 @@ class GitDiffScreen():
         self.main_window = main_window
 
     def _line_renderer(self, line):
-        if line.startswith('+'):
+        if line.startswith(b'+'):
             return 1, line
-        elif line.startswith('-'):
+        elif line.startswith(b'-'):
             return 2, line
         else:
             return None, line
@@ -45,7 +45,7 @@ class GitDiffScreen():
                     diff = check_output(command)
 
         self.diff_window = ScrollableWindow(self._line_renderer, None, self._footer_text, ScrollableWindowRenderer())
-        self.diff_window.display(diff.split("\n"), 0)
+        self.diff_window.display(diff.split(b'\n'), 0)
 
         while 1:
             c = self.main_window.getch()

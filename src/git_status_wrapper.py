@@ -3,19 +3,18 @@
 from subprocess import check_output
 
 class GitStatusWrapper():
-
     status = ''
     status_lines = []
 
     def update_status(self):
-        self.status = check_output(["git", "status"])
+        self.status = check_output(["git", "status"]).decode()
         self.status_lines = self._split_status_into_lines()
 
     def _split_status_into_lines(self):
         return self.status.split('\n')
 
     def _is_line_a_file(self, line):
-        return line.startswith("\t")
+        return line.startswith('\t')
 
     def line_count(self):
         return len(self.status_lines)

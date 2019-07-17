@@ -116,6 +116,7 @@ class GitStatusScreen():
     def push(self):
 
         cmd = ["git", "push"]
+        # cmd = ["python", "/home/carwinz/dev/workspace/git-interactive/slow-output.py"]
 
         if not Git.remote_branch_configured():
             self.curses_window.get_window().clear()

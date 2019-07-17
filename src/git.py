@@ -42,7 +42,7 @@ class Git():
             subprocess.check_output(["git", "rev-parse", "--git-dir"], stderr=devnull)
             devnull.close()
             return True
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             return False
 
     @staticmethod
@@ -52,7 +52,7 @@ class Git():
             output = subprocess.check_output(["git", "config", "--local", "--get", "branch." + Git.current_branch() + ".remote"], stderr=devnull)
             devnull.close()
             return True
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             return False
 
     @staticmethod
