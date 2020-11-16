@@ -13,7 +13,7 @@ class Git():
     @staticmethod
     def stash():
         devnull = open(os.devnull, 'w')
-        output = subprocess.check_output(["git", "stash"], stderr=devnull)
+        output = subprocess.check_output(["git", "stash"], stderr=devnull).decode()
         devnull.close()
         return output
 
@@ -49,7 +49,7 @@ class Git():
     def remote_branch_configured():
         try:
             devnull = open(os.devnull, 'w')
-            output = subprocess.check_output(["git", "config", "--local", "--get", "branch." + Git.current_branch() + ".remote"], stderr=devnull)
+            subprocess.check_output(["git", "config", "--local", "--get", "branch." + Git.current_branch() + ".remote"], stderr=devnull)
             devnull.close()
             return True
         except subprocess.CalledProcessError:
@@ -58,6 +58,6 @@ class Git():
     @staticmethod
     def current_branch():
         devnull = open(os.devnull, 'w')
-        output = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], stderr=devnull)
+        output = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], stderr=devnull).decode()
         devnull.close()
         return output.strip()

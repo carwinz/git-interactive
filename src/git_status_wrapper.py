@@ -23,7 +23,7 @@ class GitStatusWrapper():
         return self._extract_filename(self._selected_line())
 
     def _extract_filename(self, line):
-        stripped = line.replace('new file:','').replace('both modified:', '').replace('modified:', '').replace('deleted by them:', '').replace('deleted:', '').strip()
+        stripped = line.replace('new file:','').replace('both added:', '').replace('both modified:', '').replace('modified:', '').replace('deleted by them:', '').replace('deleted:', '').strip()
         if stripped.startswith('renamed:'):
             stripped = stripped[stripped.index('->') + 2:].strip()
         return stripped

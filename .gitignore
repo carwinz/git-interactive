@@ -4,3 +4,4 @@ src/interactive_status.pyc
 src/scrollable_window.pyc
 src/test/__init__.pyc
 src/test/scrollable_window_test.pyc
+__pycache__/
