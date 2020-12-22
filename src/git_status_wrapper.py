@@ -40,7 +40,7 @@ class GitStatusWrapper():
     def _is_unmerged_line(self, line):
         return 'Unmerged paths:' == line
 
-    def can_amend_commit(self):
+    def has_unpushed_changes(self):
         for line in self.status_lines:
             if line.startswith('Your branch is ahead of'):
                 return True

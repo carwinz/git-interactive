@@ -73,10 +73,10 @@ class GitStatusScreen():
         return None, None
 
     def _footer_shortcut_reminders(self, line):
-        commitOptions =  "f = commit; " + ('g = commit amend; ' if self.status_wrapper.can_amend_commit() else '')
+        commitOptions =  "f = commit; g = commit amend; "
         stashOptions = 's = stash menu; '
         quitOptions = "q = quit"
-        pushOptions = ('p = push; ' if self.status_wrapper.can_amend_commit() else '')
+        pushOptions = ('p = push; ' if self.status_wrapper.has_unpushed_changes() else '')
         file_section = line['section']
         if file_section == 'Staged':
             return 'actions: d = view diff; u = unstage; ' + commitOptions + pushOptions + stashOptions + quitOptions
@@ -270,30 +270,10 @@ class GitStatusScreen():
                 self.commit()
                 self.show_status(None, None)
             elif c == ord('g'):
-                if self.status_wrapper.can_amend_commit():
-                    Git.commit_amend()
-                    self.show_status(None, None)
-            elif c == ord('s'): # stash "submenu"
-                while 1:
-                    self._show_text("Stash:\n * s to stash changes\n * a to apply changes\n * p to pop changes\n * q to go back")
-                    c = self.curses_window.get_window().getch()
-                    if c == ord('s'):
-                        output = Git.stash()
-                        self._show_text_and_wait_for_keypress(output + "\nPress any key")
-                        self.show_status(None, None)
-                        break
-                    elif c == ord('p'):
-                        Git.stash_pop()
-                        self.show_status(None, None)
-                        break
-                    elif c == ord('a'):
-                        Git.stash_apply()
-                        self.show_status(None, None)
-                        break
-                    elif c == ord('q'):
-                        self.show_status(None, None)
-                        break
-
+                self._show_amend()
+                self.show_status(None, None)
+            elif c == ord('s'):
+                self._show_stash_menu()
             elif c == ord('p'):
                 self.push()
                 self.show_status(None, None)
@@ -306,3 +286,43 @@ class GitStatusScreen():
                 # self._show_text("Unhandled key " + str(c))
                 # c = self.curses_window.get_window().getch()
                 self.show_status(None, None)
+
+    def _show_amend(self):
+        if not Git.remote_branch_configured():
+            Git.commit_amend()
+            return
+
+        if Git.current_branch() == 'master':
+            self._show_text("You are on the master branch. Amending a commit on master is not supported because it is generally a bad idea")
+            self.curses_window.get_window().getch()
+            return
+
+        if self.status_wrapper.has_unpushed_changes():
+            Git.commit_amend()
+            return
+
+        self._show_text("You cannot amend this commit without then doing a force push. Continue: (y, n) ")
+        amend_c = self.curses_window.get_window().getch()
+        if amend_c == 10 or amend_c == 121:  # 'y' or enter
+            Git.commit_amend()
+
+    def _show_stash_menu(self):
+        while 1:
+            self._show_text("Stash:\n * s to stash changes\n * a to apply changes\n * p to pop changes\n * q to go back")
+            c = self.curses_window.get_window().getch()
+            if c == ord('s'):
+                output = Git.stash()
+                self._show_text_and_wait_for_keypress(output + "\nPress any key")
+                self.show_status(None, None)
+                break
+            elif c == ord('p'):
+                Git.stash_pop()
+                self.show_status(None, None)
+                break
+            elif c == ord('a'):
+                Git.stash_apply()
+                self.show_status(None, None)
+                break
+            elif c == ord('q'):
+                self.show_status(None, None)
+                break
