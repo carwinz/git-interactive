@@ -4,6 +4,7 @@ import sys
 import curses
 import os
 import subprocess
+import time
 from subprocess import call
 from git_status_wrapper import GitStatusWrapper
 from git_diff_screen import GitDiffScreen
@@ -241,6 +242,8 @@ class GitStatusScreen():
             elif c == ord('c'):
                 if line['isAFile']:
                     section, nextFile = self._find_status_file_after(line['section'], line['filename'])
+                    with open('/tmp/git-interactive-patch-before-last-checkout-' + str(time.time()) + '.patch', "w") as outfile:
+                        subprocess.call(['git', 'diff'], stdout=outfile)
                     call(["git", "checkout", line['filename']])
                     self.show_status(section, nextFile)
             elif c == ord('d'):
