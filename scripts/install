@@ -9,4 +9,4 @@ echo "Copying binaries"
 
 chmod +x dist/git-interactive
 cp dist/git-interactive ~/.bin/
-cp dist/git-interactive ~/app/Dropbox/dev/workspace/castle-builder/src/runner/jobs/git/scripts/
+cp dist/git-interactive ~/dev/workspace/castle-builder-artefacts/
