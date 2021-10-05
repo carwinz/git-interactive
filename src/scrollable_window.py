@@ -1,12 +1,12 @@
 #!/usr/bin/python
-
+import os
 import curses
 import logging
 
 class ScrollableWindow():
 
     def __init__(self, line_renderer, can_cursor_visit_line, dynamic_footer_creator, window_renderer):
-        logging.basicConfig(filename='/tmp/git-interactive.log',level=logging.DEBUG)
+        logging.basicConfig(filename=f'/tmp/git-interactive-{os.getuid()}.log',level=logging.DEBUG)
 
         self.line_renderer = line_renderer
         self.can_cursor_visit_line = can_cursor_visit_line

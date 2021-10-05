@@ -169,7 +169,7 @@ class GitStatusScreen():
         return None, line
 
     def execute_streaming(self, cmd):
-        log_file = "/tmp/git-push.log"
+        log_file = f'/tmp/git-push-{os.getuid()}.log'
         log = open(log_file, "w", 1)
         popen = subprocess.Popen(cmd, stdout=log, stderr=log, universal_newlines=True)
 
